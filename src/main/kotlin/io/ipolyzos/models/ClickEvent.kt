@@ -1,5 +1,7 @@
 package io.ipolyzos.models
 
+import com.google.protobuf.GeneratedMessageV3
+import com.google.protobuf.Message
 import kotlinx.serialization.*
 
 @Serializable

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package io.ipolyzos.models;
+
+message JEvent {
+  string eventTime = 1;
+  string eventType = 2;
+  string productId = 3;
+  string categoryId = 4;
+  string categoryCode = 5;
+  string brand = 6;
+  string price = 7;
+  string userId = 8;
+  string userSession = 9;
+}
