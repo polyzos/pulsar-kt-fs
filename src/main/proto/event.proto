@@ -1,8 +1,15 @@
 syntax = "proto3";
 
 package io.ipolyzos.models;
+/**
+On the root directory run:
+  protoc -I=src/ --java_out=src/main/java --kotlin_out=src/main/kotlin src/main/proto/event.proto
+*/
 
-message JEvent {
+option java_outer_classname = "EventOuter";
+option java_multiple_files = true;
+
+message ClickEvent {
   string eventTime = 1;
   string eventType = 2;
   string productId = 3;

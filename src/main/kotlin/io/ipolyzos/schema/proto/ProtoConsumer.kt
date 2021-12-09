@@ -1,6 +1,6 @@
 package io.ipolyzos.schema.proto
 
-import io.ipolyzos.models.Event.JEvent
+import io.ipolyzos.models.ClickEvent
 import org.apache.pulsar.client.api.Consumer
 import org.apache.pulsar.client.api.PulsarClient
 import org.apache.pulsar.client.api.Schema
@@ -11,8 +11,8 @@ fun main() {
         .build()
 
 
-    val consumer: Consumer<JEvent> = client.newConsumer(Schema.PROTOBUF(JEvent::class.java))
-        .topic("click-events-avro")
+    val consumer: Consumer<ClickEvent> = client.newConsumer(Schema.PROTOBUF(ClickEvent::class.java))
+        .topic("click-events-proto")
         .consumerName("test-consumer")
         .subscriptionName("test-subs")
         .subscribe()

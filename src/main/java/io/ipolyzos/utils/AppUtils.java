@@ -1,6 +1,6 @@
 package io.ipolyzos.utils;
 
-import io.ipolyzos.models.Event;
+import io.ipolyzos.models.ClickEvent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AppUtils {
-    public static List<Event.JEvent> loadStockTickerData(String inputPath) throws IOException {
+    public static List<ClickEvent> loadStockTickerData(String inputPath) throws IOException {
         return  readData(inputPath)
                 .map(AppUtils::strToStockTicker)
                 .collect(Collectors.toList());
@@ -22,10 +22,10 @@ public class AppUtils {
         return Files.lines(path);
     }
 
-    public static Event.JEvent strToStockTicker(String str) {
+    public static ClickEvent strToStockTicker(String str) {
         String[] tokens = str.split(",");
 
-        return Event.JEvent.newBuilder()
+        return ClickEvent.newBuilder()
                 .setEventTime(tokens[0])
                 .setEventType(tokens[1])
                 .setProductId(tokens[2])

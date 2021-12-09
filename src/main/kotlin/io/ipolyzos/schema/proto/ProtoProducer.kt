@@ -1,6 +1,6 @@
 package io.ipolyzos.schema.proto
 
-import io.ipolyzos.models.Event.JEvent
+import io.ipolyzos.models.ClickEvent
 import io.ipolyzos.utils.FileUtils
 import org.apache.pulsar.client.api.HashingScheme
 import org.apache.pulsar.client.api.Producer
@@ -10,7 +10,7 @@ import org.apache.pulsar.client.api.Schema
 
 fun main() {
     val events = FileUtils
-        .readFileJ("/Users/ipolyzos/Documents/datasets/user_behavior/small/events.csv")
+        .readFile("/Users/ipolyzos/Documents/datasets/user_behavior/small/events.csv")
 
 
     events.forEach(::println)
@@ -19,8 +19,8 @@ fun main() {
         .serviceUrl("pulsar://localhost:6650")
         .build()
 
-    val producer: Producer<JEvent> = client.newProducer<JEvent>(Schema.PROTOBUF(JEvent::class.java))
-        .topic("click-events-avro")
+    val producer: Producer<ClickEvent> = client.newProducer(Schema.PROTOBUF(ClickEvent::class.java))
+        .topic("click-events-proto")
         .producerName("test-producer")
         .hashingScheme(HashingScheme.Murmur3_32Hash)
         .blockIfQueueFull(true)
