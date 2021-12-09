@@ -1,34 +1,34 @@
 package io.ipolyzos.utils
 
 import io.ipolyzos.models.ClickEvent
+import io.ipolyzos.models.JEventKt
 import io.ipolyzos.models.clickEvent
 import java.io.File
+import java.sql.Timestamp
 
 object FileUtils {
+    fun loadJEvents(path: String): List<JEventKt> {
+        return File(path).useLines { lines ->
+            lines.drop(1)
+                .map { toJEvent(it) }
+                .toList()
+        }
+    }
 
-//    fun readFile(path: String): List<ClickEvent> {
-//        return File(path).useLines { lines ->
-//            lines.drop(1)
-//                .map { strToEvent(it) }
-//                .toList()
-//        }
-//    }
-//
-//    private fun strToEvent(line: String): ClickEvent {
-//        val tokens = line.split(",")
-//        return ClickEvent(
-//            Timestamp.valueOf(tokens[0].replace(" UTC", "")).time / 1000,
-//            tokens[1],
-//            tokens[2].toLong(),
-//            tokens[3].toLong(),
-//            tokens[4],
-//            tokens[5],
-//            tokens[6],
-//            tokens[7].toLong(),
-//            tokens[8]
-//        )
-//    }
-
+    fun toJEvent(str: String): JEventKt {
+        val tokens = str.split(",")
+        val eventTime = Timestamp.valueOf(tokens[0].replace(" UTC", ""))
+        return JEventKt(
+            tokens[7],
+            eventTime.time,
+            tokens[1],
+            tokens[2],
+            tokens[3],
+            tokens[4],
+            tokens[5], tokens[6].toDouble(),
+            tokens[8]
+        )
+    }
     fun readFile(path: String): List<ClickEvent> {
         return File(path).useLines { lines ->
             lines.drop(1)

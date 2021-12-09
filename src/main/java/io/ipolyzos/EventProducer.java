@@ -2,6 +2,7 @@ package io.ipolyzos;
 
 import io.ipolyzos.config.AppConfig;
 import io.ipolyzos.models.ClickEvent;
+import io.ipolyzos.models.JEvent;
 import io.ipolyzos.utils.AppUtils;
 import io.ipolyzos.utils.ClientUtils;
 import java.io.IOException;
@@ -9,22 +10,23 @@ import java.util.List;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.Schema;
+import org.apache.pulsar.client.impl.schema.JSONSchema;
 
 public class EventProducer {
     public static void main(String[] args) throws IOException {
-        List<ClickEvent> events =
-                AppUtils.loadStockTickerData("/Users/ipolyzos/Documents/datasets/user_behavior/small/events.csv");
+        List<JEvent> events =
+                AppUtils.loadJEvents("/Users/ipolyzos/Documents/datasets/user_behavior/small/events.csv");
 
         PulsarClient pulsarClient = ClientUtils.initPulsarClient(AppConfig.DEV_TOKEN);
 
-        Producer<ClickEvent> producer = pulsarClient.newProducer(Schema.PROTOBUF(ClickEvent.class))
-                .producerName("jevent-producer")
-                .topic("events-proto")
+        Producer<JEvent> producer = pulsarClient.newProducer(JSONSchema.of(JEvent.class))
+                .producerName("event-producer")
+                .topic("events-json")
                 .blockIfQueueFull(true)
                 .create();
 
 
-        for (ClickEvent event : events) {
+        for (JEvent event : events) {
             System.out.println(event);
             producer.newMessage()
                     .value(event)

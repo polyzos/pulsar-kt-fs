@@ -1,37 +1,43 @@
 package io.ipolyzos.schema.json
 
-import io.ipolyzos.models.ClickEvent
+import io.ipolyzos.models.JEventKt
 import io.ipolyzos.schema.json.JsonSerdes.JSchemaDefinition
 import io.ipolyzos.utils.FileUtils
 import org.apache.pulsar.client.api.HashingScheme
 import org.apache.pulsar.client.api.Producer
 import org.apache.pulsar.client.api.PulsarClient
 import org.apache.pulsar.client.api.Schema
+import java.util.concurrent.TimeUnit
 
 fun main() {
-    val events = FileUtils
-        .readFile("/Users/ipolyzos/Documents/datasets/user_behavior/small/events.csv")
+    val events: List<JEventKt> = FileUtils
+        .loadJEvents("/Users/ipolyzos/Documents/datasets/user_behavior/small/events.csv")
 
 
     val client = PulsarClient.builder()
         .serviceUrl("pulsar://localhost:6650")
         .build()
 
-    val producer: Producer<ClickEvent> = client.newProducer(Schema.JSON<ClickEvent>(JSchemaDefinition()))
-        .topic("click-events-json")
-        .producerName("test-producer")
+    val producer: Producer<JEventKt> = client.newProducer(Schema.JSON<JEventKt>(JSchemaDefinition()))
+        .topic("events-json")
+        .producerName("jevents-producer")
         .hashingScheme(HashingScheme.Murmur3_32Hash)
         .blockIfQueueFull(true)
+//        .batchingMaxMessages(2000)
+//        .batchingMaxBytes(1000000)
+//        .batchingMaxPublishDelay(5, TimeUnit.SECONDS)
         .create()
 
     events.forEach { e ->
-        println("Sending " + e)
-        val messageId = producer
+        producer
             .newMessage()
-            .key(e.userId.toString())
+            .key(e.userid)
             .value(e)
-            .send()
-        println("Send $messageId")
+            .sendAsync().whenComplete { id, ex ->
+                ex?.let {
+                    println("Exception occured - $ex")
+                } ?: println("Acked for message with id '$id'")
+            }
     }
     producer.close()
     client.close()

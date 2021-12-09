@@ -1,28 +1,39 @@
 package io.ipolyzos.utils;
 
 import io.ipolyzos.models.ClickEvent;
+import io.ipolyzos.models.JEvent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AppUtils {
-    public static List<ClickEvent> loadStockTickerData(String inputPath) throws IOException {
-        return  readData(inputPath)
-                .map(AppUtils::strToStockTicker)
-                .collect(Collectors.toList());
-    }
 
     public static Stream<String> readData(String inputPath) throws IOException {
         Path path = Paths.get(inputPath);
         return Files.lines(path);
     }
 
-    public static ClickEvent strToStockTicker(String str) {
+
+    public static List<JEvent> loadJEvents(String inputPath) throws IOException {
+        return  readData(inputPath)
+                .filter(line -> !line.contains("event_time"))
+                .map(AppUtils::toJEvent)
+                .collect(Collectors.toList());
+    }
+
+    public static List<ClickEvent> loadProtoEvents(String inputPath) throws IOException {
+        return  readData(inputPath)
+                .filter(line -> !line.contains("event_time"))
+                .map(AppUtils::toClickEvent)
+                .collect(Collectors.toList());
+    }
+
+    public static ClickEvent toClickEvent(String str) {
         String[] tokens = str.split(",");
 
         return ClickEvent.newBuilder()
@@ -36,21 +47,23 @@ public class AppUtils {
                 .setUserId(tokens[7])
                 .setUserSession(tokens[8])
                 .build();
-//        (
-//                tokens[0],
-//                tokens[1],
-//                tokens[2],
-//                tokens[3],
-//                tokens[4],
-//                tokens[5],
-//                tokens[6],
-//                tokens[7],
-//                tokens[8]
-//        );
     }
 
-    private static Double strToDoubleParser(String str) {
-        return Optional.of(Double.parseDouble(str))
-                .orElse(Double.NaN);
+    public static JEvent toJEvent(String str) {
+        String[] tokens = str.split(",");
+
+        Timestamp eventTime = Timestamp.valueOf(tokens[0].replace(" UTC", ""));
+
+        return new JEvent(
+                tokens[7],
+                eventTime.getTime(),
+                tokens[1],
+                tokens[2],
+                tokens[3],
+                tokens[4],
+                tokens[5],
+                Double.parseDouble(tokens[6]),
+                tokens[8]
+        );
     }
 }

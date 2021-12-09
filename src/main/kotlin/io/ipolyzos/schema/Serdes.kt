@@ -3,6 +3,8 @@ package io.ipolyzos.schema.json
 import com.github.avrokotlin.avro4k.Avro
 import com.github.avrokotlin.avro4k.io.AvroEncodeFormat
 import io.ipolyzos.models.ClickEvent
+import io.ipolyzos.models.ClickEventKt
+import io.ipolyzos.models.JEventKt
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import org.apache.avro.file.SeekableByteArrayInput
@@ -18,28 +20,28 @@ import java.nio.charset.Charset
 
 
 object JsonSerdes {
-    fun JSchemaDefinition(): SchemaDefinition<ClickEvent> =
-        SchemaDefinition.builder<ClickEvent>()
-            .withPojo(ClickEvent::class.java)
+    fun JSchemaDefinition(): SchemaDefinition<JEventKt> =
+        SchemaDefinition.builder<JEventKt>()
+            .withPojo(JEventKt::class.java)
             .withSchemaReader(JSchemaReader())
             .withSchemaWriter(JSchemaWriter())
             .withSupportSchemaVersioning(true)
             .build()
 
     // custom Pulsar SchemaReader
-    class JSchemaReader: SchemaReader<ClickEvent> {
-        override fun read(bytes: ByteArray?, offset: Int, length: Int): ClickEvent {
+    class JSchemaReader: SchemaReader<JEventKt> {
+        override fun read(bytes: ByteArray?, offset: Int, length: Int): JEventKt {
             return Json.decodeFromString(String(bytes!!, offset, length))
         }
 
-        override fun read(inputStream: InputStream?): ClickEvent {
+        override fun read(inputStream: InputStream?): JEventKt {
             return Json.decodeFromString(String(inputStream?.readBytes()!!, Charset.defaultCharset()))
         }
     }
 
     // custom Pulsar SchemaWriter
-    class JSchemaWriter : SchemaWriter<ClickEvent> {
-        override fun write(message: ClickEvent?): ByteArray {
+    class JSchemaWriter : SchemaWriter<JEventKt> {
+        override fun write(message: JEventKt?): ByteArray {
             return Json.encodeToString(message).toByteArray()
         }
     }
