@@ -45,7 +45,6 @@ object JsonSerdes {
             return Json.encodeToString(message).toByteArray()
         }
     }
-
 }
 
 object AvroSerdes {
