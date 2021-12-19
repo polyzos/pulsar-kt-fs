@@ -1,1 +1,2 @@
-# pulsar4k
+## Pulsar-Kt-FS
+A playground repo experimenting with Apache Pulsar and Kotlin (oh and some Flink SQL)
