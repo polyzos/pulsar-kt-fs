@@ -1,4 +1,4 @@
-package io.ipolyzos.schema.json
+ package io.ipolyzos.schema.json
 
 import org.apache.pulsar.client.api.PulsarClient
 import org.apache.pulsar.client.api.Schema

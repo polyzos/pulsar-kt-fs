@@ -1,24 +1,24 @@
 package io.ipolyzos.schema.json
 
 import io.ipolyzos.models.JEventKt
-import io.ipolyzos.schema.json.JsonSerdes.JSchemaDefinition
 import io.ipolyzos.utils.FileUtils
 import org.apache.pulsar.client.api.HashingScheme
 import org.apache.pulsar.client.api.Producer
 import org.apache.pulsar.client.api.PulsarClient
 import org.apache.pulsar.client.api.Schema
-import java.util.concurrent.TimeUnit
+import org.apache.pulsar.client.api.schema.SchemaDefinition
 
 fun main() {
     val events: List<JEventKt> = FileUtils
         .loadJEvents("/Users/ipolyzos/Documents/datasets/user_behavior/small/events.csv")
 
+    fun eventSchema(): SchemaDefinition<JEventKt> = JsonSerdes.JSchemaDefinition()
 
     val client = PulsarClient.builder()
         .serviceUrl("pulsar://localhost:6650")
         .build()
 
-    val producer: Producer<JEventKt> = client.newProducer(Schema.JSON<JEventKt>(JSchemaDefinition()))
+    val producer: Producer<JEventKt> = client.newProducer(Schema.JSON<JEventKt>(eventSchema()))
         .topic("events-json")
         .producerName("jevents-producer")
         .hashingScheme(HashingScheme.Murmur3_32Hash)

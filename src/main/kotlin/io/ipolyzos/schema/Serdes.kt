@@ -20,29 +20,30 @@ import java.nio.charset.Charset
 
 
 object JsonSerdes {
-    fun JSchemaDefinition(): SchemaDefinition<JEventKt> =
-        SchemaDefinition.builder<JEventKt>()
-            .withPojo(JEventKt::class.java)
-            .withSchemaReader(JSchemaReader())
-            .withSchemaWriter(JSchemaWriter())
+    @OptIn(InternalSerializationApi::class)
+    inline fun <reified T: Any> JSchemaDefinition(): SchemaDefinition<T> =
+        SchemaDefinition.builder<T>()
+            .withPojo(T::class.java)
+            .withSchemaReader(GenericSchemaReader(T::class.serializer()))
+            .withSchemaWriter(GenericSchemaWriter(T::class.serializer()))
             .withSupportSchemaVersioning(true)
             .build()
 
     // custom Pulsar SchemaReader
-    class JSchemaReader: SchemaReader<JEventKt> {
-        override fun read(bytes: ByteArray?, offset: Int, length: Int): JEventKt {
-            return Json.decodeFromString(String(bytes!!, offset, length))
+    class GenericSchemaReader<T>(private val serializer: KSerializer<T>): SchemaReader<T> {
+        override fun read(bytes: ByteArray?, offset: Int, length: Int): T {
+            return Json.decodeFromString(serializer, String(bytes!!, offset, length))
         }
 
-        override fun read(inputStream: InputStream?): JEventKt {
-            return Json.decodeFromString(String(inputStream?.readBytes()!!, Charset.defaultCharset()))
+        override fun read(inputStream: InputStream?): T {
+            return Json.decodeFromString(serializer, String(inputStream?.readBytes()!!, Charset.defaultCharset()))
         }
     }
 
     // custom Pulsar SchemaWriter
-    class JSchemaWriter : SchemaWriter<JEventKt> {
-        override fun write(message: JEventKt?): ByteArray {
-            return Json.encodeToString(message).toByteArray()
+    class GenericSchemaWriter<T>(private val serializer: KSerializer<T>) : SchemaWriter<T> {
+        override fun write(message: T): ByteArray {
+            return Json.encodeToString(serializer, message).toByteArray()
         }
     }
 }

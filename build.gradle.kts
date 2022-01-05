@@ -16,8 +16,8 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
 
-    implementation("org.apache.pulsar:pulsar-client:2.8.1")
-    implementation("org.apache.pulsar:pulsar-client-original:2.8.1")
+    implementation("org.apache.pulsar:pulsar-client:2.9.1")
+    implementation("org.apache.pulsar:pulsar-client-original:2.9.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1")
     implementation("com.github.avro-kotlin.avro4k:avro4k-core:1.5.0")
 

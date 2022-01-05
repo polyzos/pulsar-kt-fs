@@ -27,13 +27,7 @@ data class PageEvent(
 
 object SampleDataProducer {
 
-    fun pageEventSchema(): SchemaDefinition<PageEvent> =
-        SchemaDefinition.builder<PageEvent>()
-            .withPojo(PageEvent::class.java)
-            .withSchemaReader(GenericSchemaReader(PageEvent.serializer()))
-            .withSchemaWriter(GenericSchemaWriter(PageEvent.serializer()))
-            .withSupportSchemaVersioning(true)
-            .build()
+    fun pageEventSchema(): SchemaDefinition<PageEvent> = JsonSerdes.JSchemaDefinition()
 
     fun runProducer() {
         val client = PulsarClient.builder()
@@ -93,24 +87,6 @@ object SampleDataProducer {
                         println("Exception occured - $ex")
                     } ?: println("Acked for message with id '$id'")
                 }
-        }
-    }
-
-    // custom Pulsar SchemaReader
-    class GenericSchemaReader<T>(private val serializer: KSerializer<T>): SchemaReader<T> {
-        override fun read(bytes: ByteArray?, offset: Int, length: Int): T {
-            return Json.decodeFromString(serializer, String(bytes!!, offset, length))
-        }
-
-        override fun read(inputStream: InputStream?): T {
-            return Json.decodeFromString(serializer, String(inputStream?.readBytes()!!, Charset.defaultCharset()))
-        }
-    }
-
-    // custom Pulsar SchemaWriter
-    class GenericSchemaWriter<T>(private val serializer: KSerializer<T>) : SchemaWriter<T> {
-        override fun write(message: T): ByteArray {
-            return Json.encodeToString(serializer, message).toByteArray()
         }
     }
 }
